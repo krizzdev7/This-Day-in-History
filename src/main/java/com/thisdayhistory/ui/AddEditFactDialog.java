@@ -1,52 +1,227 @@
 package com.thisdayhistory.ui;
 
 import com.thisdayhistory.model.HistoricalFact;
+import com.thisdayhistory.util.DateUtil;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
+import java.time.Year;
 
 public class AddEditFactDialog extends JDialog {
 
-    private final HistoricalFact fact;
-    private boolean saved = false;
+    private static final String[] CATEGORIES = {"Politics", "Science", "Arts", "Sports", "Other"};
+    private static final int MIN_YEAR = -3000; // Allow ancient history
+    
+    private HistoricalFact result;
+    private final JSpinner monthSpinner;
+    private final JSpinner daySpinner;
+    private final JSpinner yearSpinner;
+    private final JTextArea eventArea;
+    private final JComboBox<String> categoryCombo;
+    private final JCheckBox favoriteCheck;
+    private final JTextField sourceField;
 
-    public AddEditFactDialog(Frame owner, HistoricalFact fact) {
+    public AddEditFactDialog(Frame owner, String title, int month, int day) {
+        super(owner, title, true);
+        this.monthSpinner = new JSpinner(new SpinnerNumberModel(month, 1, 12, 1));
+        this.daySpinner = new JSpinner(new SpinnerNumberModel(day, 1, 31, 1));
+        this.yearSpinner = new JSpinner(new SpinnerNumberModel(2000, MIN_YEAR, Year.now().getValue(), 1));
+        this.eventArea = new JTextArea(5, 40);
+        this.categoryCombo = new JComboBox<>(CATEGORIES);
+        this.favoriteCheck = new JCheckBox("Favorite");
+        this.sourceField = new JTextField(40);
+        initUI();
+    }
+    
+    public AddEditFactDialog(Frame owner, String title, HistoricalFact fact) {
         super(owner, true);
-        this.fact = fact;
+        setTitle(title);
+        this.monthSpinner = new JSpinner(new SpinnerNumberModel(fact.getMonth(), 1, 12, 1));
+        this.daySpinner = new JSpinner(new SpinnerNumberModel(fact.getDay(), 1, 31, 1));
+        this.yearSpinner = new JSpinner(new SpinnerNumberModel(fact.getYear(), MIN_YEAR, Year.now().getValue(), 1));
+        this.eventArea = new JTextArea(5, 40);
+        this.categoryCombo = new JComboBox<>(CATEGORIES);
+        this.favoriteCheck = new JCheckBox("Favorite");
+        this.sourceField = new JTextField(40);
+        
+        // Set existing values
+        eventArea.setText(fact.getEvent());
+        categoryCombo.setSelectedItem(fact.getCategory());
+        favoriteCheck.setSelected(fact.isFavorite());
+        sourceField.setText(fact.getSource());
+        
         initUI();
     }
 
     private void initUI() {
-        setTitle(fact.getId() == 0 ? "Add Fact" : "Edit Fact");
         setSize(400, 300);
         setLocationRelativeTo(getOwner());
+        setLayout(new BorderLayout(5, 5));
 
-        // Form fields
-        // ... (add form fields for month, day, year, event, category, source)
+        // Create main panel
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        // Date panel
+        JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        datePanel.add(new JLabel("Month:"));
+        datePanel.add(monthSpinner);
+        datePanel.add(Box.createHorizontalStrut(10));
+        datePanel.add(new JLabel("Day:"));
+        datePanel.add(daySpinner);
+        datePanel.add(Box.createHorizontalStrut(10));
+        datePanel.add(new JLabel("Year:"));
+        datePanel.add(yearSpinner);
+
+        gbc.gridwidth = 2;
+        mainPanel.add(datePanel, gbc);
+
+        // Event description
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        mainPanel.add(new JLabel("Event:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        eventArea.setLineWrap(true);
+        eventArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(eventArea);
+        mainPanel.add(scrollPane, gbc);
+
+        // Category
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
+        mainPanel.add(new JLabel("Category:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(categoryCombo, gbc);
+
+        // Source
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        mainPanel.add(new JLabel("Source:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sourceField, gbc);
+
+        // Favorite checkbox
+        gbc.gridy++;
+        favoriteCheck.setHorizontalAlignment(SwingConstants.LEFT);
+        mainPanel.add(favoriteCheck, gbc);
+
+        add(mainPanel, BorderLayout.CENTER);
+
+        // Add validation and input control
+        monthSpinner.addChangeListener(e -> validateDate());
+        daySpinner.addChangeListener(e -> validateDate());
+        
+        // Limit event description length
+        ((AbstractDocument) eventArea.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
+                if (newText.length() <= 500) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
 
         // Save and Cancel buttons
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
-            // ... (validate and save the fact)
-            saved = true;
-            dispose();
+            if (validateInput()) {
+                saveAndClose();
+            }
         });
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> dispose());
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Set default button
+        getRootPane().setDefaultButton(saveButton);
     }
 
-    public boolean isSaved() {
-        return saved;
+    private void validateDate() {
+        int month = (Integer) monthSpinner.getValue();
+        int day = (Integer) daySpinner.getValue();
+        int maxDay = DateUtil.getMaxDayForMonth(month);
+        
+        if (day > maxDay) {
+            daySpinner.setValue(maxDay);
+        }
     }
 
-    public HistoricalFact getFact() {
-        return fact;
+    private boolean validateInput() {
+        String event = eventArea.getText().trim();
+        if (event.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter an event description.",
+                "Validation Error",
+                JOptionPane.ERROR_MESSAGE);
+            eventArea.requestFocus();
+            return false;
+        }
+        
+        if (event.length() < 10) {
+            JOptionPane.showMessageDialog(this,
+                "Event description must be at least 10 characters long.",
+                "Validation Error",
+                JOptionPane.ERROR_MESSAGE);
+            eventArea.requestFocus();
+            return false;
+        }
+        
+        String source = sourceField.getText().trim();
+        if (source.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter a source for the historical fact.",
+                "Validation Error",
+                JOptionPane.ERROR_MESSAGE);
+            sourceField.requestFocus();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private void saveAndClose() {
+        int month = (Integer) monthSpinner.getValue();
+        int day = (Integer) daySpinner.getValue();
+        int year = (Integer) yearSpinner.getValue();
+        String event = eventArea.getText().trim();
+        String category = (String) categoryCombo.getSelectedItem();
+        boolean favorite = favoriteCheck.isSelected();
+        String source = sourceField.getText().trim();
+        
+        result = new HistoricalFact(0, month, day, year, event, category, favorite, source);
+        dispose();
+    }
+    
+    public HistoricalFact getResult() {
+        return result;
     }
 }

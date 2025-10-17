@@ -1,9 +1,10 @@
 package com.thisdayhistory.model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class HistoricalFact {
-    private int id;
+    private Integer id;
     private int month;
     private int day;
     private Integer year;
@@ -11,29 +12,38 @@ public class HistoricalFact {
     private String category;
     private String source;
     private boolean favorite;
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
+    // Constructors
     public HistoricalFact() {}
 
-    public HistoricalFact(int id, int month, int day, Integer year, String event, String category, String source, boolean favorite, Timestamp createdAt) {
-        this.id = id;
+    public HistoricalFact(int month, int day, Integer year, String event, String category, String source) {
         this.month = month;
         this.day = day;
         this.year = year;
         this.event = event;
         this.category = category;
         this.source = source;
-        this.favorite = favorite;
-        this.createdAt = createdAt;
     }
+    
+        public HistoricalFact(Integer id, int month, int day, int year, String event, String category, boolean favorite, String source) {
+            this.id = id;
+            this.month = month;
+            this.day = day;
+            this.year = year;
+            this.event = event;
+            this.category = category;
+            this.favorite = favorite;
+            this.source = source;
+        }
 
-    // Getters and setters
-
-    public int getId() {
+    // Getters and Setters with validation
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -42,6 +52,9 @@ public class HistoricalFact {
     }
 
     public void setMonth(int month) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Month must be between 1 and 12");
+        }
         this.month = month;
     }
 
@@ -50,6 +63,10 @@ public class HistoricalFact {
     }
 
     public void setDay(int day) {
+        if (day < 1 || day > 31) {
+            throw new IllegalArgumentException("Day must be between 1 and 31");
+        }
+        // Note: Actual validation for day based on month should be in service layer
         this.day = day;
     }
 
@@ -66,7 +83,10 @@ public class HistoricalFact {
     }
 
     public void setEvent(String event) {
-        this.event = event;
+        if (event == null || event.trim().isEmpty()) {
+            throw new IllegalArgumentException("Event cannot be empty");
+        }
+        this.event = event.trim();
     }
 
     public String getCategory() {
@@ -74,7 +94,10 @@ public class HistoricalFact {
     }
 
     public void setCategory(String category) {
-        this.category = category;
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be empty");
+        }
+        this.category = category.trim();
     }
 
     public String getSource() {
@@ -82,7 +105,10 @@ public class HistoricalFact {
     }
 
     public void setSource(String source) {
-        this.source = source;
+        if (source == null || source.trim().isEmpty()) {
+            throw new IllegalArgumentException("Source cannot be empty");
+        }
+        this.source = source.trim();
     }
 
     public boolean isFavorite() {
@@ -93,11 +119,46 @@ public class HistoricalFact {
         this.favorite = favorite;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // Formatted getters for display
+    public String getFormattedDate() {
+        String yearStr = year != null ? " " + year : "";
+        return String.format("%d-%02d%s", month, day, yearStr);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HistoricalFact fact = (HistoricalFact) o;
+        return month == fact.month &&
+               day == fact.day &&
+               Objects.equals(year, fact.year) &&
+               Objects.equals(event, fact.event);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(month, day, year, event);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s: %s (%s)", getFormattedDate(), event, category);
     }
 }
