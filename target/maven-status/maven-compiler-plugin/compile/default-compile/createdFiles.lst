@@ -1,0 +1,10 @@
+com\thisdayhistory\util\CsvUtil.class
+com\thisdayhistory\dao\DatabaseManager.class
+com\thisdayhistory\dao\HistoricalFactDAO.class
+com\thisdayhistory\ui\ImportExportUtil.class
+com\thisdayhistory\model\HistoricalFact.class
+com\thisdayhistory\MainApp.class
+com\thisdayhistory\ui\FactTableModel.class
+com\thisdayhistory\ui\AboutDialog.class
+com\thisdayhistory\util\DateUtil.class
+com\thisdayhistory\service\FactService.class

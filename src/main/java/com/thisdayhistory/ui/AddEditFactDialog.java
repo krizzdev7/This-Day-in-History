@@ -15,7 +15,7 @@ public class AddEditFactDialog extends JDialog {
 
     private static final String[] CATEGORIES = {"Politics", "Science", "Arts", "Sports", "Other"};
     private static final int MIN_YEAR = -3000; // Allow ancient history
-    
+
     private HistoricalFact result;
     private final JSpinner monthSpinner;
     private final JSpinner daySpinner;
@@ -27,33 +27,34 @@ public class AddEditFactDialog extends JDialog {
 
     public AddEditFactDialog(Frame owner, String title, int month, int day) {
         super(owner, title, true);
-        this.monthSpinner = new JSpinner(new SpinnerNumberModel(month, 1, 12, 1));
-        this.daySpinner = new JSpinner(new SpinnerNumberModel(day, 1, 31, 1));
-        this.yearSpinner = new JSpinner(new SpinnerNumberModel(2000, MIN_YEAR, Year.now().getValue(), 1));
+        this.monthSpinner = new JSpinner(new SpinnerNumberModel(Integer.valueOf(month), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
+        this.daySpinner = new JSpinner(new SpinnerNumberModel(Integer.valueOf(day), Integer.valueOf(1), Integer.valueOf(31), Integer.valueOf(1)));
+        this.yearSpinner = new JSpinner(new SpinnerNumberModel(Integer.valueOf(2000), Integer.valueOf(MIN_YEAR), Integer.valueOf(Year.now().getValue()), Integer.valueOf(1)));
         this.eventArea = new JTextArea(5, 40);
         this.categoryCombo = new JComboBox<>(CATEGORIES);
         this.favoriteCheck = new JCheckBox("Favorite");
         this.sourceField = new JTextField(40);
         initUI();
     }
-    
+
     public AddEditFactDialog(Frame owner, String title, HistoricalFact fact) {
         super(owner, true);
         setTitle(title);
-        this.monthSpinner = new JSpinner(new SpinnerNumberModel(fact.getMonth(), 1, 12, 1));
-        this.daySpinner = new JSpinner(new SpinnerNumberModel(fact.getDay(), 1, 31, 1));
-        this.yearSpinner = new JSpinner(new SpinnerNumberModel(fact.getYear(), MIN_YEAR, Year.now().getValue(), 1));
+        this.monthSpinner = new JSpinner(new SpinnerNumberModel(Integer.valueOf(fact.getMonth()), Integer.valueOf(1), Integer.valueOf(12), Integer.valueOf(1)));
+        this.daySpinner = new JSpinner(new SpinnerNumberModel(Integer.valueOf(fact.getDay()), Integer.valueOf(1), Integer.valueOf(31), Integer.valueOf(1)));
+        Integer yearValue = fact.getYear() != null ? fact.getYear() : Integer.valueOf(2000);
+        this.yearSpinner = new JSpinner(new SpinnerNumberModel(yearValue, Integer.valueOf(MIN_YEAR), Integer.valueOf(Year.now().getValue()), Integer.valueOf(1)));
         this.eventArea = new JTextArea(5, 40);
         this.categoryCombo = new JComboBox<>(CATEGORIES);
         this.favoriteCheck = new JCheckBox("Favorite");
         this.sourceField = new JTextField(40);
-        
+
         // Set existing values
         eventArea.setText(fact.getEvent());
         categoryCombo.setSelectedItem(fact.getCategory());
         favoriteCheck.setSelected(fact.isFavorite());
         sourceField.setText(fact.getSource());
-        
+
         initUI();
     }
 
@@ -65,7 +66,7 @@ public class AddEditFactDialog extends JDialog {
         // Create main panel
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -130,7 +131,7 @@ public class AddEditFactDialog extends JDialog {
         // Add validation and input control
         monthSpinner.addChangeListener(e -> validateDate());
         daySpinner.addChangeListener(e -> validateDate());
-        
+
         // Limit event description length
         ((AbstractDocument) eventArea.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
@@ -160,7 +161,7 @@ public class AddEditFactDialog extends JDialog {
         buttonPanel.add(cancelButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
-        
+
         // Set default button
         getRootPane().setDefaultButton(saveButton);
     }
@@ -169,7 +170,7 @@ public class AddEditFactDialog extends JDialog {
         int month = (Integer) monthSpinner.getValue();
         int day = (Integer) daySpinner.getValue();
         int maxDay = DateUtil.getMaxDayForMonth(month);
-        
+
         if (day > maxDay) {
             daySpinner.setValue(maxDay);
         }
@@ -179,35 +180,35 @@ public class AddEditFactDialog extends JDialog {
         String event = eventArea.getText().trim();
         if (event.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                "Please enter an event description.",
-                "Validation Error",
-                JOptionPane.ERROR_MESSAGE);
+                    "Please enter an event description.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
             eventArea.requestFocus();
             return false;
         }
-        
+
         if (event.length() < 10) {
             JOptionPane.showMessageDialog(this,
-                "Event description must be at least 10 characters long.",
-                "Validation Error",
-                JOptionPane.ERROR_MESSAGE);
+                    "Event description must be at least 10 characters long.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
             eventArea.requestFocus();
             return false;
         }
-        
+
         String source = sourceField.getText().trim();
         if (source.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                "Please enter a source for the historical fact.",
-                "Validation Error",
-                JOptionPane.ERROR_MESSAGE);
+                    "Please enter a source for the historical fact.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
             sourceField.requestFocus();
             return false;
         }
-        
+
         return true;
     }
-    
+
     private void saveAndClose() {
         int month = (Integer) monthSpinner.getValue();
         int day = (Integer) daySpinner.getValue();
@@ -216,11 +217,11 @@ public class AddEditFactDialog extends JDialog {
         String category = (String) categoryCombo.getSelectedItem();
         boolean favorite = favoriteCheck.isSelected();
         String source = sourceField.getText().trim();
-        
+
         result = new HistoricalFact(0, month, day, year, event, category, favorite, source);
         dispose();
     }
-    
+
     public HistoricalFact getResult() {
         return result;
     }
