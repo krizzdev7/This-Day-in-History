@@ -1,19 +1,43 @@
 package com.thisdayhistory.ui;
 
-import com.thisdayhistory.model.HistoricalFact;
-import com.thisdayhistory.service.FactService;
-import com.thisdayhistory.util.DateUtil;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingWorker;
+import javax.swing.table.TableRowSorter;
+
+import com.thisdayhistory.model.HistoricalFact;
+import com.thisdayhistory.service.FactService;
+import com.thisdayhistory.util.DateUtil;
 
 public class MainFrame extends JFrame {
 
@@ -353,7 +377,9 @@ public class MainFrame extends JFrame {
             @Override
             protected HistoricalFact doInBackground() {
                 statusBar.setText("Loading random fact...");
-                return factService.getRandomFact();
+                int month = (Integer) monthSpinner.getValue();
+                int day = (Integer) daySpinner.getValue();
+                return factService.getRandomFact(month, day);
             }
 
             @Override

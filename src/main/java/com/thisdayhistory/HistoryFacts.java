@@ -1,3 +1,5 @@
+package com.thisdayhistory;
+
 import java.util.Scanner;
 
 public class HistoryFacts {

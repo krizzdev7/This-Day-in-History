@@ -196,6 +196,24 @@ public class HistoricalFactDAO {
         return categories;
     }
 
+    public List<HistoricalFact> findAll() {
+        List<HistoricalFact> facts = new ArrayList<>();
+        String sql = "SELECT * FROM historical_facts ORDER BY month, day, year";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                facts.add(mapRowToHistoricalFact(rs));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving all facts", e);
+            throw new RuntimeException("Database error occurred", e);
+        }
+        return facts;
+    }
+
     private HistoricalFact mapRowToHistoricalFact(ResultSet rs) throws SQLException {
         HistoricalFact fact = new HistoricalFact();
         fact.setId(rs.getInt("id"));

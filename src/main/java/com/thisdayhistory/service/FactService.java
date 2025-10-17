@@ -1,12 +1,15 @@
 package com.thisdayhistory.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 
 import com.thisdayhistory.dao.HistoricalFactDAO;
 import com.thisdayhistory.model.HistoricalFact;
+import com.thisdayhistory.util.DateUtil;
 
 public class FactService {
     private static final Logger LOGGER = Logger.getLogger(FactService.class.getName());
@@ -48,6 +51,31 @@ public class FactService {
         
         LOGGER.info("Retrieved random fact: " + randomFact.getId());
         return randomFact;
+    }
+
+    /**
+     * Returns facts for a given date, optionally filtering by category and favorites flag.
+     */
+    public List<HistoricalFact> getFactsForDate(int month, int day, String category, boolean favoritesOnly) {
+        validateDate(month, day);
+        LOGGER.info(String.format("Getting facts for date %d-%d with category=%s favoritesOnly=%b", month, day, category, favoritesOnly));
+        List<HistoricalFact> facts = factDAO.findByDate(month, day);
+        List<HistoricalFact> filtered = new ArrayList<>();
+        for (HistoricalFact f : facts) {
+            if (category != null && !category.equals("All Categories") && !category.equals(f.getCategory())) {
+                continue;
+            }
+            if (favoritesOnly && !f.isFavorite()) {
+                continue;
+            }
+            filtered.add(f);
+        }
+        return filtered;
+    }
+
+    public List<HistoricalFact> getAllFacts() {
+        LOGGER.info("Retrieving all facts");
+        return factDAO.findAll();
     }
 
     public void markFavorite(int id, boolean favorite) {
