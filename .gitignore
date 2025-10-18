@@ -34,12 +34,26 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+.flattened-pom.xml
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
 
 # Eclipse
 .classpath
 .project
 .settings/
 bin/
+.metadata/
+.recommenders/
+*.launch
+*.pydevproject
+.externalToolBuilders/
+*.bak
 
 # IntelliJ IDEA
 .idea/
@@ -47,6 +61,8 @@ bin/
 *.iws
 *.ipr
 out/
+*.hprof
+.idea_modules/
 
 # NetBeans
 nbproject/private/
@@ -58,12 +74,25 @@ nbdist/
 
 # VS Code
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 *.code-workspace
+.history/
 
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
 # Windows
 Thumbs.db
@@ -75,22 +104,70 @@ ehthumbs_vista.db
 $RECYCLE.BIN/
 *.lnk
 
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
 # Application specific
 config.properties.local
 *.bak
 *.swp
+*.swo
 *.tmp
 *~
+*.orig
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+*.h2.db
 
 # Logs
 logs/
 *.log.*
 
-# Copilot instructions (optional - uncomment if you want to keep these private)
+# Test coverage
+coverage/
+.nyc_output/
+*.gcda
+*.gcno
+*.gcov
+
+# Dependency directories (if using local libs)
+lib/
+libs/
+
+# Generated documentation
+doc/
+docs/api/
+javadoc/
+
+# Sensitive or environment-specific files
+.env
+.env.local
+.env.*.local
+secrets/
+*.key
+*.pem
+*.p12
+*.jks
+
+# Backup files
+*.backup
+*.old
+*_backup
+*_old
+
+# Cache and temp directories
+.cache/
+tmp/
+temp/
+*.cache
+
+# Copilot instructions (uncomment if you want to keep these private)
 # .github/copilot-instructions.md
-.github/copilot-instructions.md
+
