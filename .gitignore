@@ -46,8 +46,11 @@ target/
 *.db
 *.sqlite
 
-# Configuration with passwords
+# Configuration with real credentials - DO NOT COMMIT
 config.properties
+
+# Keep the template file in git
+!config.properties.template
 
 # Note: MySQL Connector JAR should be downloaded separately
 # lib/*.jar

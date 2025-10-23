@@ -50,9 +50,18 @@ ThisDayInHistory/
 │   └── util/
 │       ├── DateUtil.java              # Date utility functions
 │       ├── ImageLoader.java           # Image loading & caching
-│       └── AnimationUtil.java         # UI animations
+│       ├── AnimationUtil.java         # UI animations
+│       └── CsvEventImporter.java      # CSV import utility
+├── sql/                                # SQL scripts directory
+│   ├── history_schema.sql             # Database schema & seed data
+│   ├── june_events.sql                # June historical events
+│   ├── july_events.sql                # July historical events
+│   ├── august_events.sql              # August historical events
+│   ├── september_events.sql           # September historical events
+│   ├── october_events.sql             # October historical events
+│   ├── november_events.sql            # November historical events
+│   └── december_events.sql            # December historical events
 ├── config.properties                   # Database configuration
-├── history_schema.sql                  # Database schema & seed data
 ├── LICENSE                             # MIT License
 └── README.md                           # This file
 ```
@@ -123,10 +132,10 @@ Download the MySQL Connector/J jar file and place it in the `lib/` directory:
    mysql -u root -p
    
    # Run the schema file
-   source history_schema.sql;
+   source sql/history_schema.sql;
    
    # Or directly:
-   mysql -u root -p < history_schema.sql
+   mysql -u root -p < sql/history_schema.sql
    ```
 
    This will:
@@ -379,3 +388,33 @@ For issues, questions, or suggestions:
 
 **Made with ❤️ and Java Swing**
 This Day in History is an academic java project based on Java Swing UI and an active backend running on MySQL. 
+
+## 📥 Importing updated event datasets (CSV)
+
+You can import or refresh event data from a CSV file without rebuilding the schema.
+
+Supported headers (case-insensitive):
+- Required: year, month, day, title (or event)
+- Optional: description, category, image_url, source (used to populate description if missing)
+
+Examples of compatible header rows:
+- `year,month,day,title,description,category,source`
+- `month,day,year,event,category,source`
+
+Run the importer:
+
+Windows (PowerShell):
+```powershell
+./run-import.bat              # auto-detects history_events.csv or historical_events.csv in project root
+./run-import.bat history_events.csv
+```
+
+Linux/macOS:
+```bash
+./run-import.sh               # auto-detects history_events.csv or historical_events.csv
+./run-import.sh history_events.csv
+```
+
+Notes:
+- Upsert behavior: rows are matched by (year, month, day, title). If a match is found, description/category/image_url are updated; otherwise a new row is inserted.
+- For strict duplicate prevention, you may add a unique index: `ALTER TABLE events ADD UNIQUE KEY uniq_event (year, month, day, title);`

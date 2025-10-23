@@ -1,0 +1,61 @@
+# ============================================================================
+# This Day in History - Configuration File Template
+# ============================================================================
+# INSTRUCTIONS:
+# 1. Copy this file and rename it to "config.properties"
+# 2. Replace the placeholder values with your actual configuration
+# 3. Never commit config.properties to git (it's in .gitignore)
+# ============================================================================
+
+# Database Configuration
+db.url=jdbc:mysql://localhost:3306/history_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.username=root
+db.password=YOUR_MYSQL_PASSWORD_HERE
+db.driver=com.mysql.cj.jdbc.Driver
+
+# Connection Pool Settings
+db.pool.initialSize=5
+db.pool.maxActive=20
+db.pool.maxIdle=10
+db.pool.minIdle=5
+
+# Application Settings
+app.name=This Day in History
+app.version=1.0.0
+app.theme=light
+
+# UI Settings
+ui.window.width=1200
+ui.window.height=800
+ui.font.main=Segoe UI
+ui.font.title=Georgia
+ui.font.size.default=14
+ui.font.size.title=24
+ui.font.size.header=18
+
+# Color Scheme - Light Theme
+theme.light.background=#F5F5DC
+theme.light.foreground=#2C2416
+theme.light.accent=#B8860B
+theme.light.secondary=#8B7355
+theme.light.highlight=#FFD700
+theme.light.card.background=#FAEBD7
+theme.light.border=#D2B48C
+
+# Color Scheme - Dark Theme
+theme.dark.background=#1E1E1E
+theme.dark.foreground=#E8E6E3
+theme.dark.accent=#DAA520
+theme.dark.secondary=#8B7355
+theme.dark.highlight=#FFD700
+theme.dark.card.background=#2D2D2D
+theme.dark.border=#4A4A4A
+
+# Logging
+log.level=INFO
+log.file=application.log
+log.console.enabled=true
+
+# Cache Settings
+cache.enabled=true
+cache.ttl=3600
